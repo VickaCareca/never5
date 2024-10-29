@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-4">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="unsafe-url">
+  <title>O Que Vence Sheldon</title>
+  <style>
+    @font-face {
+      font-family: "Comic Sans MS";
+      src: url("https://www.wildwest.gg/fonts/comic-sans.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      font-family: "Comic Sans MS", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #dbeafe;
+    }
+
+    .game-container {
+      text-align: center;
+      background-color: #dbeafe;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .button-text {
+      font-family: "Comic Sans MS", sans-serif;
+      color: black;
+    }
+
+    #question {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    #guess-container {
+      position: relative;
+    }
+
+    #emoji {
+      font-size: 120px;
+      margin: 12px 0;
+      transition: transform 0.3s ease-in-out;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #guess-animation {
+      position: absolute;
+      font-size: 60px;
+      top: 30%;
+      left: 50%;
+      transform: rotate(12deg) scale(1.3);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #guess-animation.spin {
+      animation: spin 0.5s infinite alternate;
+    }
+
+    #emoji.bounce {
+      animation: bounce 0.5s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(-20px);
+      }
+    }
+
+    #score {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #888;
+    }
+
+    #reason {
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+
+    #tutorial-hint {
+      color: #888
+    }
+
+    #guess-input {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+      width: 60%;
+      font-family: "Comic Sans MS", sans-serif;
+    }
+
+    #submit-guess {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #8fffa9;
+      color: white;
+      border: none;
+      cursor: pointer;
+      width: 60px;
+      height: 40px;
+      position: relative;
+    }
+
+    #submit-guess:hover {
+      background-color: #6dc782;
+    }
+
+    #submit-guess:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    #submit-guess .loader {
+      display: none;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    #history {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    #guess-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding-left: 0;
+      list-style-type: none;
+    }
+
+    #next-button,
+    #play-again {
+      font-family: "Comic Sans MS", sans-serif;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #8fffa9;
+      color: black;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+    }
+
+    #next-button:hover,
+    #play-again:hover {
+      background-color: #6dc782;
+    }
+
+    .result-emoji {
+      font-size: 140px;
+      margin: 0 10px;
+    }
+
+    @media (max-width: 400px) {
+      .result-emoji {
+        font-size: 80px;
+        margin: 0 10px;
+      }
+
+      #emoji {
+        font-size: 60px;
+      }
+
+      #reason {
+        font-size: 1rem;
+      }
+
+      #question {
+        font-size: 1.5rem;
+      }
+    }
+
+    .signature {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #888;
+      line-height: 1.1;
+    }
+
+    #site-tag {
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-container">
+    <div id="game-area">
+      <div id="question">
+        <div>o que <span id="judging">{GG_ALL_GAME_CONFIG.judgingCriteria}</span></div>
+        <div>{GG_ALL_GAME_CONFIG.startWord}?</div>
+      </div>
+      <div id="reason"></div>
+      <div id="site-tag">wildwest.gg</div>
+      <div id="guess-container">
+        <div id="emoji">🪨</div>
+        <p id="guess-animation"></p>
+      </div>
+      <div id="score">Pontuação: 0</div>
+      <div id="tutorial-hint"></div>
+      <form id="guess-form">
+        <input type="text" id="guess-input" required="">
+        <button type="submit" id="submit-guess">
+          <span class="button-text">VAI</span>
+          <div class="loader"></div>
+        </button>
+      </form>
+      <button id="next-button" style="display: none">Próximo</button>
+      <button id="play-again" style="display: none">Jogar Novamente</button>
+    </div>
+    <div id="history">
+      <p>Já adivinhou:</p>
+      <ul id="guess-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      let GG_ALL_GAME_CONFIG = {
+        startEmoji: "🧠",
+        startWord: "Sheldon Cooper",
+        judgingCriteria: "vence",
+        judgingCriteriaLoss: "não vence",
+      }
+      let score = 0;
+      let previousGuess = GG_ALL_GAME_CONFIG.startWord;
+      let currentEmoji = GG_ALL_GAME_CONFIG.startEmoji;
+      let gameId = crypto.randomUUID();
+      let guessList = [{
+        emoji: GG_ALL_GAME_CONFIG.startEmoji,
+        text: GG_ALL_GAME_CONFIG.startWord
+      }];
+      const questionEl = document.getElementById("question");
+      const emojiEl = document.getElementById("emoji");
+      const guessAnimEl = document.getElementById("guess-animation");
+      const scoreEl = document.getElementById("score");
+      const reasonEl = document.getElementById("reason");
+      const tutorialHintEl = document.getElementById("tutorial-hint");
+      const guessForm = document.getElementById("guess-form");
+      const guessInput = document.getElementById("guess-input");
+      const submitGuess = document.getElementById("submit-guess");
+      const submitGuessText = submitGuess.querySelector(".button-text");
+      const submitGuessLoader = submitGuess.querySelector(".loader");
+      const guessList1 = document.getElementById("guess-list");
+      const nextButton = document.getElementById("next-button");
+      const playAgainButton = document.getElementById("play-again");
+
+      function normalizeGuess(guess) {
+        return guess.toLowerCase().trim().replace(/\s+/g, " ");
+      }
+
+      function createTextNode(text) {
+        return document.createTextNode(text);
+      }
+
+      function updateUI(page) {
+        if (page === "GUESS") {
+          questionEl.innerHTML = ''; // Limpa o conteúdo anterior
+          const firstLine = document.createElement('div');
+          firstLine.appendChild(document.createTextNode("o que "));
+          const judgingSpan = document.createElement("span");
+          judgingSpan.id = "judging";
+          judgingSpan.textContent = GG_ALL_GAME_CONFIG.judgingCriteria;
+          firstLine.appendChild(judgingSpan);
+          questionEl.appendChild(firstLine);
+          const secondLine = document.createElement('div');
+          secondLine.textContent = previousGuess + "?";
+          questionEl.appendChild(secondLine);
+          emojiEl.textContent = currentEmoji;
+          guessForm.style.display = "block";
+          nextButton.style.display = "none";
+          playAgainButton.style.display = "none";
+        } else if (page === "RESULT") {
+          questionEl.innerHTML = ''; // Limpa o conteúdo anterior
+          const firstLine = document.createElement('div');
+          firstLine.appendChild(document.createTextNode("Você escolheu:"));
+          questionEl.appendChild(firstLine);
+          const secondLine = document.createElement('div');
+          secondLine.appendChild(document.createTextNode(previousGuess));
+          questionEl.appendChild(secondLine);
+          emojiEl.textContent = currentEmoji;
+          guessForm.style.display = "none";
+          nextButton.style.display = "block";
+          playAgainButton.style.display = "none";
+        } else if (page === "FINISH") {
+          questionEl.innerHTML = ''; // Limpa o conteúdo anterior
+          const firstLine = document.createElement('div');
+          firstLine.appendChild(document.createTextNode("Você ganhou!"));
+          questionEl.appendChild(firstLine);
+          const secondLine = document.createElement('div');
+          secondLine.appendChild(document.createTextNode("Adivinhar é muito divertido!"));
+          questionEl.appendChild(secondLine);
+          emojiEl.textContent = currentEmoji;
+          guessForm.style.display = "none";
+          nextButton.style.display = "none";
+          playAgainButton.style.display = "block";
+        }
+      }
+
+      function updateScore() {
+        scoreEl.textContent = "Pontuação: " + score;
+      }
+
+      function showReason(reason) {
+        reasonEl.textContent = reason;
+      }
+
+      function addGuessToHistory(guess) {
+        const li = document.createElement("li");
+        li.appendChild(createTextNode(guess));
+        guessList1.appendChild(li);
+      }
+
+      function resetGame() {
+        score = 0;
+        previousGuess = GG_ALL_GAME_CONFIG.startWord;
+        currentEmoji = GG_ALL_GAME_CONFIG.startEmoji;
+        guessList = [{
+          emoji: GG_ALL_GAME_CONFIG.startEmoji,
+          text: GG_ALL_GAME_CONFIG.startWord
+        }];
+        updateScore();
+        guessList1.innerHTML = ''; // Limpa a lista anterior
+      }
+
+      guessForm.onsubmit = async function(event) {
+        event.preventDefault();
+        const guess = guessInput.value;
+        submitGuessText.textContent = "Adivinhando...";
+        submitGuessLoader.style.display = "inline-block";
+        guessForm.style.pointerEvents = "none";
+
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simula uma espera de 1 segundo
+
+        const normalizedGuess = normalizeGuess(guess);
+        const isCorrect = normalizedGuess === normalizeGuess(previousGuess);
+        if (isCorrect) {
+          score++;
+          currentEmoji = "👍";
+          showReason("Correto!");
+          updateUI("RESULT");
+        } else {
+          currentEmoji = "👎";
+          showReason("Errado! Tente novamente.");
+          updateUI("RESULT");
+        }
+
+        addGuessToHistory(guess);
+        updateScore();
+        guessInput.value = "";
+        guessForm.style.pointerEvents = "auto";
+        submitGuessText.textContent = "VAI";
+        submitGuessLoader.style.display = "none";
+      }
+
+      nextButton.onclick = function() {
+        resetGame();
+        updateUI("GUESS");
+      }
+
+      playAgainButton.onclick = function() {
+        resetGame();
+        updateUI("GUESS");
+      }
+
+      updateUI("GUESS");
+    })();
+  </script>
+</body>
+
+</html>
